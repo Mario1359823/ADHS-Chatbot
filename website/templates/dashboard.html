@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Beratung</h2>
+<form method="post">
+    <label for="country">Land:</label>
+    <select name="country" id="country" required>
+        {% for c in countries %}
+        <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+    </select>
+    <label for="start_date">Reisebeginn:</label>
+    <input type="date" name="start_date" id="start_date" required>
+    <label for="end_date">Reiseende:</label>
+    <input type="date" name="end_date" id="end_date" required>
+    <button type="submit">Beratung anzeigen</button>
+</form>
+{% if advice %}
+<div class="advice">
+    <h3>Empfohlene Impfungen für {{ advice.country }}</h3>
+    <ul>
+        {% for v in advice.vaccines %}
+        <li>{{ v }}</li>
+        {% endfor %}
+    </ul>
+    {% if advice.quick %}
+    <p class="quick">Zeitraum kurz - Schnellimpfschema empfohlen!</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
