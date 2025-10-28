@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Song zu Noten</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.5;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #f5f7ff, #dfe7ff 50%, #c7d7ff);
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+        box-sizing: border-box;
+      }
+
+      main {
+        max-width: 960px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 20px;
+        box-shadow: 0 25px 60px -20px rgba(17, 39, 113, 0.35);
+        padding: 3rem clamp(2rem, 5vw, 4rem);
+        backdrop-filter: blur(10px);
+      }
+
+      h1 {
+        margin-top: 0;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        color: #1a237e;
+      }
+
+      p.description {
+        margin-top: 0.25rem;
+        margin-bottom: 2rem;
+        color: #3949ab;
+        font-size: 1rem;
+      }
+
+      form {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+      }
+
+      label {
+        font-weight: 600;
+        color: #283593;
+      }
+
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(63, 81, 181, 0.35);
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 120px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: inset 0 1px 2px rgba(26, 35, 126, 0.05);
+      }
+
+      textarea:focus {
+        outline: 2px solid rgba(63, 81, 181, 0.4);
+        outline-offset: 2px;
+      }
+
+      button {
+        justify-self: start;
+        padding: 0.75rem 1.5rem;
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(120deg, #5c6bc0, #3949ab 70%);
+        color: white;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 30px -20px rgba(26, 35, 126, 0.8);
+      }
+
+      .hint {
+        font-size: 0.92rem;
+        color: #374785;
+      }
+
+      .hint code {
+        font-family: "Fira Code", "SFMono-Regular", Menlo, monospace;
+        background: rgba(92, 107, 192, 0.12);
+        padding: 0.1rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      .error {
+        color: #c62828;
+        font-weight: 600;
+      }
+
+      #notation {
+        width: 100%;
+        min-height: 220px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(63, 81, 181, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: auto;
+        padding: 1.5rem;
+      }
+
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 1.5rem;
+        }
+
+        main {
+          padding: 2.25rem clamp(1.5rem, 6vw, 2.5rem);
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Song zu Noten</h1>
+      <p class="description">
+        Gib die Notennamen deines Songs ein (z. B. <code>C4 D4 E4</code> oder
+        <code>F#4/8 G4/8 A4/4</code>) und klicke auf „Noten anzeigen“. Jede Note
+        wird als Viertel interpretiert, sofern kein Wert angegeben ist.
+      </p>
+      <form id="song-form">
+        <label for="song-input">Song (Notenfolge)</label>
+        <textarea
+          id="song-input"
+          placeholder="C4 D4 E4 F4 G4"
+          aria-describedby="song-hint"
+        ></textarea>
+        <p id="song-hint" class="hint">
+          Unterstützt werden Noten A–G, optional mit <code>#</code> oder
+          <code>b</code>, eine Oktave (z. B. <code>4</code>) und optional ein
+          Wert (z. B. <code>/8</code> für Achtel). Beispiel:
+          <code>C4 D4 E4/8 E4/8 F4 G4</code>.
+        </p>
+        <button type="submit">Noten anzeigen</button>
+        <p id="error" role="status" class="error" aria-live="polite"></p>
+      </form>
+      <section id="notation" aria-live="polite">
+        <span>Hier erscheinen die Noten.</span>
+      </section>
+    </main>
+
+    <script>
+      const { Flow } = Vex;
+      const form = document.getElementById("song-form");
+      const input = document.getElementById("song-input");
+      const error = document.getElementById("error");
+      const notation = document.getElementById("notation");
+
+      const DURATION_MAP = {
+        w: "w",
+        h: "h",
+        q: "q",
+        8: "8",
+        16: "16",
+        32: "32",
+      };
+
+      function sanitizeToken(token) {
+        return token
+          .trim()
+          .replace(/[,;]+$/, "")
+          .replace(/\s+/g, "");
+      }
+
+      function parseToken(token) {
+        if (!token) return null;
+        const cleaned = sanitizeToken(token);
+        const match = cleaned.match(/^([A-Ga-g])([#b♭♯]?)(\d)(?:\/(w|h|q|8|16|32))?$/);
+        if (!match) {
+          return null;
+        }
+
+        let [, note, accidental, octave, duration] = match;
+        accidental = accidental.replace("♭", "b").replace("♯", "#");
+        const key = `${note.toLowerCase()}${accidental ? accidental : ""}/${octave}`;
+        return {
+          key,
+          duration: DURATION_MAP[duration] || "q",
+          label: `${note.toUpperCase()}${accidental}${octave}${duration ? `/${duration}` : ""}`,
+        };
+      }
+
+      function renderNotes(tokens) {
+        notation.innerHTML = "";
+
+        if (!tokens.length) {
+          notation.innerHTML = "<span>Keine Noten gefunden.</span>";
+          return;
+        }
+
+        const renderer = new Flow.Renderer(notation, Flow.Renderer.Backends.SVG);
+        const width = Math.max(360, Math.min(tokens.length * 80, 1200));
+        renderer.resize(width, 220);
+        const context = renderer.getContext();
+
+        const stave = new Flow.Stave(20, 40, width - 40);
+        stave.addClef("treble");
+        stave.setContext(context).draw();
+
+        const notes = tokens.map((token) => {
+          const note = new Flow.StaveNote({
+            keys: [token.key],
+            duration: token.duration,
+          });
+
+          if (token.key.includes("#")) {
+            note.addModifier(0, new Flow.Accidental("#"));
+          }
+
+          if (token.key.includes("b")) {
+            note.addModifier(0, new Flow.Accidental("b"));
+          }
+
+          const annotation = new Flow.Annotation(token.label)
+            .setFont("Inter, sans-serif", 12, "normal")
+            .setVerticalJustification(Flow.Annotation.VerticalJustify.BOTTOM);
+          note.addModifier(0, annotation);
+          return note;
+        });
+
+        const voice = new Flow.Voice({
+          num_beats: 4,
+          beat_value: 4,
+        }).setMode(Flow.Voice.Mode.SOFT);
+        voice.addTickables(notes);
+
+        new Flow.Formatter().joinVoices([voice]).format([voice], width - 80);
+        voice.draw(context, stave);
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const raw = input.value.trim();
+        if (!raw) {
+          error.textContent = "Bitte gib mindestens eine Note ein.";
+          renderNotes([]);
+          return;
+        }
+
+        const rawTokens = raw.split(/[\s,;|]+/).filter(Boolean);
+        const parsedTokens = rawTokens.map((token) => ({
+          original: token,
+          parsed: parseToken(token),
+        }));
+
+        const invalidTokens = parsedTokens
+          .filter(({ parsed }) => !parsed)
+          .map(({ original }) => original);
+
+        if (invalidTokens.length) {
+          error.textContent = `Folgende Angaben konnten nicht interpretiert werden: ${invalidTokens.join(", ")}.`;
+          renderNotes([]);
+          return;
+        }
+
+        const tokens = parsedTokens.map(({ parsed }) => parsed);
+
+        if (!tokens.length) {
+          error.textContent = "Die Eingabe konnte nicht interpretiert werden.";
+          renderNotes([]);
+          return;
+        }
+
+        error.textContent = "";
+        renderNotes(tokens);
+      });
+    </script>
+  </body>
+</html>
