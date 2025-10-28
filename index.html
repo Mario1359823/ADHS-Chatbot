@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chronische Wunden CME Akademie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="access-gate" class="overlay">
+      <div class="overlay-card">
+        <h1>Zugang zur CME-Plattform</h1>
+        <p>
+          Bitte melden Sie sich an und schließen Sie die Teilnahmegebühr ab, um
+          die Inhalte der Fortbildung zu öffnen.
+        </p>
+        <form id="login-form" class="form">
+          <h2>Login</h2>
+          <label for="login-email">E-Mail-Adresse</label>
+          <input id="login-email" type="email" required placeholder="name@klinik.de" />
+          <label for="login-password">Passwort</label>
+          <input id="login-password" type="password" required placeholder="••••••••" />
+          <button type="submit" class="button primary">Anmelden</button>
+        </form>
+        <form id="payment-form" class="form" hidden>
+          <h2>Teilnahmegebühr</h2>
+          <label for="card-number">Kartennummer</label>
+          <input id="card-number" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" required />
+          <div class="form-row">
+            <div>
+              <label for="card-expiry">Gültig bis</label>
+              <input id="card-expiry" type="text" maxlength="7" placeholder="MM/JJ" required />
+            </div>
+            <div>
+              <label for="card-cvc">CVC</label>
+              <input id="card-cvc" type="text" maxlength="4" placeholder="123" required />
+            </div>
+          </div>
+          <button type="submit" class="button primary">49 € bezahlen</button>
+          <p class="secure-note">Verschlüsselte Zahlung – keine Daten werden gespeichert.</p>
+        </form>
+      </div>
+    </div>
+
+    <header class="hero">
+      <nav class="nav">
+        <div class="logo">Chronische Wunden CME</div>
+        <ul class="nav-links">
+          <li><a href="#curriculum">Curriculum</a></li>
+          <li><a href="#tool">Versorgungstool</a></li>
+          <li><a href="#prüfung">CME-Prüfung</a></li>
+          <li><a href="#material">Skript</a></li>
+        </ul>
+        <button class="button ghost" id="logout-button" hidden>Abmelden</button>
+      </nav>
+      <div class="hero-content">
+        <div>
+          <span class="badge">Zertifizierte ärztliche Fortbildung</span>
+          <h1>Chronische Wunden leitliniengerecht versorgen</h1>
+          <p>
+            Vertiefen Sie Ihr Wissen in der Diagnostik und Therapie chronischer
+            Wunden. Erleben Sie ein interaktives Training mit aktuellen
+            Evidenzen, Fallbeispielen und abschließender CME-Prüfung.
+          </p>
+          <div class="cta-group">
+            <a class="button primary" href="#tool">Zum Online-Tool</a>
+            <a class="button secondary" href="#material">Skript herunterladen</a>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-value">4</span>
+            <span class="stat-label">CME-Punkte</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Klinische Fälle</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">2h</span>
+            <span class="stat-label">Interaktive Inhalte</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="curriculum" class="section">
+        <div class="section-heading">
+          <h2>Curriculum und Lernziele</h2>
+          <p>
+            Das modulare Curriculum vermittelt den vollständigen Workflow von
+            der initialen Diagnostik bis zum Langzeitmanagement chronischer
+            Wunden.
+          </p>
+        </div>
+        <div class="module-grid">
+          <article class="module">
+            <h3>Modul 1: Grundlagen</h3>
+            <p>
+              Pathophysiologie chronischer Wunden, Risikofaktoren und
+              Klassifikation nach ICD sowie gängigen Scores.
+            </p>
+            <ul>
+              <li>Wundheilungsphasen und Störfaktoren</li>
+              <li>Gefäßdiagnostik und ABI</li>
+              <li>Interprofessionelle Zusammenarbeit</li>
+            </ul>
+          </article>
+          <article class="module">
+            <h3>Modul 2: Diagnostik</h3>
+            <p>
+              Strukturierte Erhebung von Anamnese, klinischer Untersuchung und
+              apparativen Verfahren.
+            </p>
+            <ul>
+              <li>Screening auf Durchblutungsstörungen</li>
+              <li>Infektionsdiagnostik nach IDSA</li>
+              <li>Bewertung von Biofilmen</li>
+            </ul>
+          </article>
+          <article class="module">
+            <h3>Modul 3: Therapieplanung</h3>
+            <p>
+              Algorithmus zur Ableitung individueller Versorgungspläne unter
+              Berücksichtigung von Leitlinienempfehlungen.
+            </p>
+            <ul>
+              <li>Dekontamination &amp; Debridement</li>
+              <li>Feuchtigkeitsbalancierte Wundauflagen</li>
+              <li>Infektionskontrolle und Antibiotic Stewardship</li>
+            </ul>
+          </article>
+          <article class="module">
+            <h3>Modul 4: Langzeitmanagement</h3>
+            <p>
+              Verlaufsdokumentation, Telemedizin und Prävention von Rezidiven.
+            </p>
+            <ul>
+              <li>Messbare Qualitätsindikatoren</li>
+              <li>Patientenaufklärung und Schulung</li>
+              <li>Nachsorge und Netzwerkarbeit</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="tool" class="section dark">
+        <div class="section-heading">
+          <h2>Interaktives Versorgungstool</h2>
+          <p>
+            Durchlaufen Sie klinische Szenarien Schritt für Schritt. Treffen Sie
+            Entscheidungen und sehen Sie die Empfehlungen basierend auf
+            Leitlinien und Evidenz.
+          </p>
+        </div>
+        <div class="tool-container">
+          <aside class="tool-menu">
+            <button class="tool-step active" data-step="0">1. Erstbewertung</button>
+            <button class="tool-step" data-step="1">2. Diagnostik</button>
+            <button class="tool-step" data-step="2">3. Therapieoptionen</button>
+            <button class="tool-step" data-step="3">4. Verlaufsmonitoring</button>
+            <button class="tool-step" data-step="4">5. Interdisziplinäres Team</button>
+          </aside>
+          <article class="tool-content">
+            <h3 id="tool-title">Erstbewertung der Wunde</h3>
+            <p id="tool-description">
+              Führen Sie eine strukturierte Anamnese durch, erheben Sie Vital- und
+              Laborparameter und nutzen Sie standardisierte Wundklassifikationen.
+            </p>
+            <ul id="tool-actions" class="action-list"></ul>
+            <div class="decision-card">
+              <h4>Ihre Entscheidung</h4>
+              <p id="tool-decision">
+                Wählen Sie oben eine Maßnahme aus, um Details und Handlungsempfehlungen zu sehen.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="material" class="section">
+        <div class="section-heading">
+          <h2>Skript &amp; Ressourcen</h2>
+          <p>
+            Laden Sie das vollständige Skript mit Grafiken, Checklisten und
+            Literaturverzeichnis herunter.
+          </p>
+        </div>
+        <div class="resource-card">
+          <div>
+            <h3>Skript Chronische Wunden</h3>
+            <p>112 Seiten, Stand 03/2024, inkl. Abbildungen und Algorithmen.</p>
+          </div>
+          <a class="button primary" href="assets/skript-chronische-wunden.pdf" download>
+            PDF herunterladen
+          </a>
+        </div>
+        <div class="resource-grid">
+          <article>
+            <h4>Leitlinienkompass</h4>
+            <p>Zusammenfassung der wichtigsten S3- und internationalen Leitlinien.</p>
+          </article>
+          <article>
+            <h4>Checklisten</h4>
+            <p>Praktische Checklisten für Visiten, Dokumentation und Entlassungsmanagement.</p>
+          </article>
+          <article>
+            <h4>Telemedizin-Toolkit</h4>
+            <p>Vorlagen für Videosprechstunden, Dokumentations-Templates und Datenschutz.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="prüfung" class="section dark">
+        <div class="section-heading">
+          <h2>CME-Prüfung</h2>
+          <p>
+            Beantworten Sie 10 Multiple-Choice-Fragen. Zum Bestehen sind 70 %
+            erforderlich. Nach erfolgreichem Abschluss erhalten Sie Ihr Zertifikat.
+          </p>
+        </div>
+        <form id="exam-form" class="exam-form">
+          <div class="exam-progress">
+            <span id="question-counter">Frage 1 von 10</span>
+            <div class="progress-bar"><div id="progress-indicator"></div></div>
+          </div>
+          <div id="exam-question" class="exam-question"></div>
+          <div id="exam-choices" class="exam-choices"></div>
+          <button type="submit" class="button primary">Antwort bestätigen</button>
+        </form>
+        <div id="exam-result" class="exam-result" hidden>
+          <h3>Ergebnis</h3>
+          <p id="exam-score"></p>
+          <p id="exam-feedback"></p>
+          <button class="button secondary" id="restart-exam">Prüfung erneut starten</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <strong>MedCampus Akademie</strong>
+        <p>Fortbildungen für Ärztinnen und Ärzte seit 2008.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#">Impressum</a>
+        <a href="#">Datenschutz</a>
+        <a href="#">Kontakt</a>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
