@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Voice Notes">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="description" content="Notizen und Aufgaben mit Sprachsteuerung">
+
+    <title>Voice Notes</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>Voice Notes</h1>
+            <div class="header-actions">
+                <button id="searchToggle" class="icon-btn" aria-label="Suchen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                </button>
+                <button id="filterToggle" class="icon-btn" aria-label="Filter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M6 12h12M8 18h8"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Search Bar (hidden by default) -->
+        <div id="searchBar" class="search-bar hidden">
+            <input type="text" id="searchInput" placeholder="Notizen durchsuchen...">
+            <button id="clearSearch" class="clear-btn">×</button>
+        </div>
+
+        <!-- Filter Bar (hidden by default) -->
+        <div id="filterBar" class="filter-bar hidden">
+            <select id="categoryFilter">
+                <option value="">Alle Kategorien</option>
+                <option value="personal">Persönlich</option>
+                <option value="work">Arbeit</option>
+                <option value="shopping">Einkaufen</option>
+                <option value="health">Gesundheit</option>
+                <option value="ideas">Ideen</option>
+                <option value="other">Sonstiges</option>
+            </select>
+            <select id="priorityFilter">
+                <option value="">Alle Prioritäten</option>
+                <option value="urgent">Dringend</option>
+                <option value="high">Hoch</option>
+                <option value="normal">Normal</option>
+                <option value="low">Niedrig</option>
+            </select>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-value" id="totalCount">0</span>
+                <span class="stat-label">Notizen</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="todoCount">0/0</span>
+                <span class="stat-label">Aufgaben</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="completionRate">0%</span>
+                <span class="stat-label">Erledigt</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="all">Alle</button>
+            <button class="tab" data-tab="notes">Notizen</button>
+            <button class="tab" data-tab="todos">Aufgaben</button>
+            <button class="tab" data-tab="pinned">Angepinnt</button>
+        </div>
+
+        <!-- Notes List -->
+        <main class="notes-container">
+            <div id="notesList" class="notes-list">
+                <!-- Notes will be rendered here -->
+            </div>
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-icon">📝</div>
+                <h2>Keine Notizen</h2>
+                <p>Tippe auf + oder nutze die Spracheingabe</p>
+            </div>
+        </main>
+
+        <!-- Floating Action Buttons -->
+        <div class="fab-container">
+            <button id="voiceBtn" class="fab fab-voice" aria-label="Spracheingabe">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </button>
+            <button id="addBtn" class="fab fab-add" aria-label="Neue Notiz">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Note Editor Modal -->
+        <div id="editorModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button id="cancelEdit" class="text-btn">Abbrechen</button>
+                    <h2 id="editorTitle">Neue Notiz</h2>
+                    <button id="saveNote" class="text-btn primary">Speichern</button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="noteTitle" placeholder="Titel" class="note-title-input">
+
+                    <div class="voice-input-row">
+                        <textarea id="noteContent" placeholder="Inhalt..." class="note-content-input"></textarea>
+                        <button id="voiceInputBtn" class="voice-input-btn" aria-label="Spracheingabe">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Kategorie</label>
+                        <select id="noteCategory">
+                            <option value="personal">Persönlich</option>
+                            <option value="work">Arbeit</option>
+                            <option value="shopping">Einkaufen</option>
+                            <option value="health">Gesundheit</option>
+                            <option value="ideas">Ideen</option>
+                            <option value="other">Sonstiges</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Priorität</label>
+                        <select id="notePriority">
+                            <option value="low">Niedrig</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="high">Hoch</option>
+                            <option value="urgent">Dringend</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row toggle-row">
+                        <label>Als Aufgabe markieren</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="noteTodo">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-row toggle-row">
+                        <label>Anpinnen</label>
+                        <label class="toggle">
+                            <input type="checkbox" id="notePinned">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Tags (kommagetrennt)</label>
+                        <input type="text" id="noteTags" placeholder="tag1, tag2, tag3">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Recording Modal -->
+        <div id="voiceModal" class="modal hidden">
+            <div class="modal-content voice-modal">
+                <div class="modal-header">
+                    <button id="cancelVoice" class="text-btn">Abbrechen</button>
+                    <h2>Spracheingabe</h2>
+                    <button id="saveVoice" class="text-btn primary" disabled>Speichern</button>
+                </div>
+                <div class="modal-body voice-body">
+                    <div id="voiceStatus" class="voice-status">
+                        <div class="voice-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                        </div>
+                        <p id="voiceInstructions">Tippe zum Starten</p>
+                    </div>
+
+                    <div id="voiceWaveform" class="voice-waveform hidden">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+
+                    <div id="transcriptContainer" class="transcript-container hidden">
+                        <p id="transcript" class="transcript"></p>
+                    </div>
+
+                    <button id="recordBtn" class="record-btn">
+                        <span class="record-icon"></span>
+                    </button>
+
+                    <div class="voice-options hidden" id="voiceOptions">
+                        <button class="voice-option-btn" data-type="note">Als Notiz</button>
+                        <button class="voice-option-btn" data-type="todo">Als Aufgabe</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Note Detail Modal -->
+        <div id="detailModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button id="closeDetail" class="text-btn">Zurück</button>
+                    <h2>Details</h2>
+                    <button id="editNote" class="text-btn primary">Bearbeiten</button>
+                </div>
+                <div class="modal-body" id="detailContent">
+                    <!-- Detail content will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
