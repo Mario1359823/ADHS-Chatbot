@@ -109,11 +109,15 @@ KLINISCHER TEXT:
 {patient_text}"""
 
 # ---------------------------------------------------------------------------
-# Schritt 2: AMDP-Fließtext
+# Schritt 2: AMDP-Fließtext (DIRECT MODE - Originaltext wird mitgesendet)
 # ---------------------------------------------------------------------------
 AMDP_PROMPT = """\
-Erstelle aus den folgenden AMDP-Befunddaten einen medizinischen Fließtext \
-für einen psychiatrischen Befundbericht nach dem CU-Standard.
+Erstelle den psychopathologischen Befund (AMDP-System) als Fließtext \
+für einen LaGeSo-Befundbericht nach dem CU-Standard.
+
+Lies den ORIGINALEN KLINISCHEN TEXT sorgfältig und erstelle daraus den \
+AMDP-Befund. Die vorextrahierten Stichpunkte dienen nur als Orientierung - \
+nutze IMMER den Originaltext als primäre Quelle.
 
 REGELN:
 - ALLE 20 Kategorien in EXAKT dieser Reihenfolge:
@@ -129,6 +133,7 @@ REGELN:
 - Fließtext mit Punkten als Satzzeichen, KEINE Aufzählungszeichen, KEIN Markdown
 - KEINE Nummerierung
 - Medizinische Fachsprache, knapp und präzise, auf Deutsch
+- Fehlende Informationen als "nicht erhoben" / "nicht beurteilbar" kennzeichnen
 - Antworte NUR mit dem Fließtext, kein weiterer Text
 
 BEISPIEL-FORMAT:
@@ -142,15 +147,22 @@ Gewichtsabnahme in den letzten Monaten. BMI 21. Keine akute Suizidalität. \
 Keine akute Eigen- oder Fremdgefährdung. Psychopharmakologische Vorbehandlung \
 mit Escitalopram."
 
-AMDP-BEFUNDDATEN:
+=== ORIGINALER KLINISCHER TEXT (PRIMÄRE QUELLE) ===
+{patient_text}
+
+=== VOREXTRAHIERTE STICHPUNKTE (nur Orientierung) ===
 {befund_json}"""
 
 # ---------------------------------------------------------------------------
-# Schritt 3: Verlauf + Suchtanamnese
+# Schritt 3: Verlauf + Suchtanamnese (DIRECT MODE - Originaltext wird mitgesendet)
 # ---------------------------------------------------------------------------
 VERLAUF_PROMPT = """\
-Erstelle aus den folgenden Stichpunkten einen Text für den Abschnitt \
-"Verlauf der Erkrankung" und ggf. "Suchterkrankung" eines LaGeSo-Befundberichts.
+Erstelle den Abschnitt "Verlauf der Erkrankung" und ggf. "Suchterkrankung" \
+für einen LaGeSo-Befundbericht.
+
+Lies den ORIGINALEN KLINISCHEN TEXT sorgfältig und erstelle daraus den \
+Verlaufstext. Die vorextrahierten Stichpunkte dienen nur als Orientierung - \
+nutze IMMER den Originaltext als primäre Quelle.
 
 REGELN:
 - Fließtext, sachlich, medizinisch-fachsprachlich, auf Deutsch
@@ -158,38 +170,43 @@ REGELN:
 - Zusammenhängender, logisch strukturierter Text
 - Bei Suchterkrankung: ALLE 6 Punkte abdecken (Konsummuster, letzter Konsum, \
 Entzugssymptomatik, stationäre Behandlung, Abstinenzstatus, aktuelle Anbindung)
+- NUR psychiatrische/psychotherapeutische Behandlungen erwähnen
+- KEINE Physiotherapie, Orthopädie oder somatische Behandlungen
+- Nur dokumentierte Fakten, keine Spekulationen
 - Antworte NUR mit dem Fließtext, kein weiterer Text
 
-ANAMNESE/VERLAUF-STICHPUNKTE:
-{anamnese_stichpunkte}
+=== ORIGINALER KLINISCHER TEXT (PRIMÄRE QUELLE) ===
+{patient_text}
 
-SUCHTERKRANKUNG-DATEN:
-{sucht_daten}
-
-VERLAUFSINFORMATIONEN:
-{verlauf_daten}"""
+=== VOREXTRAHIERTE STICHPUNKTE (nur Orientierung) ===
+Anamnese: {anamnese_stichpunkte}
+Sucht: {sucht_daten}
+Verlauf: {verlauf_daten}"""
 
 # ---------------------------------------------------------------------------
-# Schritt 4: Krankheitsbedingte Auswirkungen
+# Schritt 4: Krankheitsbedingte Auswirkungen (DIRECT MODE - Originaltext wird mitgesendet)
 # ---------------------------------------------------------------------------
 AUSWIRKUNGEN_PROMPT = """\
 Erstelle für einen LaGeSo-Befundbericht die drei Abschnitte der \
 "Krankheitsbedingten Auswirkungen" (Alltag, Beruf, Sozial).
+
+Lies den ORIGINALEN KLINISCHEN TEXT sorgfältig und erstelle daraus die \
+Auswirkungstexte. Die vorextrahierten Stichpunkte dienen nur als Orientierung - \
+nutze IMMER den Originaltext als primäre Quelle.
 
 REGELN:
 - Sachlich, fachsprachlich, Fließtext, auf Deutsch
 - KEINE Aufzählungszeichen, KEIN Markdown
 - Für jeden Bereich (Alltag, Beruf, Sozial) einen separaten Absatz
 - Trenne die drei Bereiche mit genau "---ALLTAG---", "---BERUF---", "---SOZIAL---"
+- Nur dokumentierte Fakten aus dem Text, keine Spekulationen
 - Antworte NUR mit den drei Absätzen, kein weiterer Text
 
-DIAGNOSEN:
-{diagnosen}
+=== ORIGINALER KLINISCHER TEXT (PRIMÄRE QUELLE) ===
+{patient_text}
 
-BEFUND-ZUSAMMENFASSUNG:
-{befund_zusammenfassung}
-
-STICHPUNKTE ZU AUSWIRKUNGEN:
+=== VOREXTRAHIERTE STICHPUNKTE (nur Orientierung) ===
+Diagnosen: {diagnosen}
 Alltag: {alltag_stichpunkte}
 Beruf: {beruf_stichpunkte}
 Sozial: {sozial_stichpunkte}"""

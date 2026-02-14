@@ -1,6 +1,10 @@
 """
 Multi-Step Extraktion: Rohtext → strukturierte Daten → Fließtexte.
 Orchestriert die 4-Schritt-LLM-Pipeline nach CU-Standard.
+
+DIRECT MODE: Der originale Patiententext wird bei JEDEM Schritt an das LLM
+gesendet. Die JSON-Extraktion aus Schritt 1 dient nur als strukturelle
+Orientierung – das LLM hat immer Zugriff auf den vollständigen Originaltext.
 """
 
 import json
@@ -67,25 +71,26 @@ def extract_data(
     _progress(1, "Extrahiere Informationen aus dem Text...")
     raw_data = _step1_extract(client, patient_text)
 
-    # --- Schritt 2: AMDP-Fließtext ---
+    # --- Schritt 2: AMDP-Fließtext (mit Originaltext!) ---
     _progress(2, "Erstelle psychopathologischen Befund (AMDP)...")
-    befund_text = _step2_amdp(client, raw_data.get("befund", EMPTY_BEFUND))
+    befund_text = _step2_amdp(client, patient_text, raw_data.get("befund", EMPTY_BEFUND))
 
-    # --- Schritt 3: Verlauf + Suchtanamnese ---
+    # --- Schritt 3: Verlauf + Suchtanamnese (mit Originaltext!) ---
     _progress(3, "Erstelle Verlauf und Behandlungshistorie...")
     verlauf_text, sucht_text = _step3_verlauf(
         client,
+        patient_text,
         raw_data.get("anamnese_stichpunkte", []),
         raw_data.get("sucht", {}),
         raw_data.get("verlauf", {}),
     )
 
-    # --- Schritt 4: Krankheitsbedingte Auswirkungen ---
+    # --- Schritt 4: Krankheitsbedingte Auswirkungen (mit Originaltext!) ---
     _progress(4, "Erstelle krankheitsbedingte Auswirkungen...")
     alltag, beruf, sozial = _step4_auswirkungen(
         client,
+        patient_text,
         raw_data.get("diagnosen", []),
-        befund_text,
         raw_data.get("auswirkungen_stichpunkte", {}),
     )
 
@@ -142,10 +147,14 @@ def _step1_extract(client: OllamaClient, patient_text: str) -> dict:
     return data
 
 
-def _step2_amdp(client: OllamaClient, befund: dict) -> str:
-    """Schritt 2: Generiert AMDP-Fließtext aus den Befunddaten."""
+def _step2_amdp(client: OllamaClient, patient_text: str, befund: dict) -> str:
+    """Schritt 2: Generiert AMDP-Fließtext.
+
+    DIRECT MODE: Das LLM bekommt den ORIGINALEN Patiententext plus die
+    vorextrahierten Befund-Stichpunkte als Orientierung.
+    """
     befund_json = json.dumps(befund, ensure_ascii=False, indent=2)
-    prompt = AMDP_PROMPT.format(befund_json=befund_json)
+    prompt = AMDP_PROMPT.format(patient_text=patient_text, befund_json=befund_json)
 
     text = client.generate(prompt)
 
@@ -162,11 +171,15 @@ def _step2_amdp(client: OllamaClient, befund: dict) -> str:
 
 def _step3_verlauf(
     client: OllamaClient,
+    patient_text: str,
     anamnese_stichpunkte: list,
     sucht: dict,
     verlauf: dict,
 ) -> tuple[str, str]:
     """Schritt 3: Generiert Verlauf- und Suchtanamnese-Text.
+
+    DIRECT MODE: Das LLM bekommt den ORIGINALEN Patiententext plus die
+    vorextrahierten Stichpunkte als Orientierung.
 
     Returns:
         Tuple (verlauf_text, sucht_text)
@@ -181,6 +194,7 @@ def _step3_verlauf(
     verlauf_daten = json.dumps(verlauf, ensure_ascii=False, indent=2)
 
     prompt = VERLAUF_PROMPT.format(
+        patient_text=patient_text,
         anamnese_stichpunkte=stichpunkte,
         sucht_daten=sucht_daten,
         verlauf_daten=verlauf_daten,
@@ -204,11 +218,14 @@ def _step3_verlauf(
 
 def _step4_auswirkungen(
     client: OllamaClient,
+    patient_text: str,
     diagnosen: list,
-    befund_text: str,
     auswirkungen_stichpunkte: dict,
 ) -> tuple[str, str, str]:
     """Schritt 4: Generiert die drei Auswirkungs-Texte.
+
+    DIRECT MODE: Das LLM bekommt den ORIGINALEN Patiententext plus die
+    vorextrahierten Stichpunkte als Orientierung.
 
     Returns:
         Tuple (alltag, beruf, sozial)
@@ -224,8 +241,8 @@ def _step4_auswirkungen(
     sozial_sp = auswirkungen_stichpunkte.get("sozial", [])
 
     prompt = AUSWIRKUNGEN_PROMPT.format(
+        patient_text=patient_text,
         diagnosen=diagnosen_text,
-        befund_zusammenfassung=befund_text[:500] if befund_text else "Kein Befund.",
         alltag_stichpunkte=", ".join(alltag_sp) if alltag_sp else "nicht erhoben",
         beruf_stichpunkte=", ".join(beruf_sp) if beruf_sp else "nicht erhoben",
         sozial_stichpunkte=", ".join(sozial_sp) if sozial_sp else "nicht erhoben",
